@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DiscordBotVampireDiceRoller
@@ -15,6 +16,8 @@ namespace DiscordBotVampireDiceRoller
     private DiscordSocketClient discordClient;
 
     private Dictionary<SocketUser, VampireDiceRoll> dicLastRoll4User = new Dictionary<SocketUser, VampireDiceRoll>();
+
+    Dictionary<string, string> chatter;
 
     /// <summary>
     /// MainMethod
@@ -29,6 +32,8 @@ namespace DiscordBotVampireDiceRoller
     /// <returns></returns>
     public async Task MainAsync()
     {
+      this.readChatter();
+      
       this.discordClient = new DiscordSocketClient();
       this.discordClient.Log += Log;
       this.discordClient.MessageReceived += MessageReceived;
@@ -122,54 +127,41 @@ namespace DiscordBotVampireDiceRoller
       if (message.Author.IsBot == false)
       {
         // Response to see, that the Bot is still responding
-        if (message.Content.Contains("test", StringComparison.OrdinalIgnoreCase))
+        foreach (KeyValuePair<string,string> pair in chatter)
         {
-          await message.Channel.SendMessageAsync("Nein!");
+          if (message.Content.Contains(pair.Key, StringComparison.OrdinalIgnoreCase))
+          {
+            await message.Channel.SendMessageAsync(pair.Value);
+            break;
+          }
         }
-        else if (message.Content.Contains("doch", StringComparison.OrdinalIgnoreCase))
+      }
+    }
+
+    private void readChatter()
+    {
+      // Read chatter file
+      string[] chatterLines = System.IO.File.ReadAllLines(@"chatter.txt");
+
+      // Write chatter file into dictionary
+      this.chatter = new Dictionary<string, string>();
+
+      foreach (string line in chatterLines)
+      {
+        string[] strLineSplit = line.Split(':');
+        if (strLineSplit.Length > 1)
         {
-          await message.Channel.SendMessageAsync("Oh!");
+          StringBuilder builder = new StringBuilder();
+          builder.Append(strLineSplit[1]);
+          for (int index = 2; index < strLineSplit.Length; index++)
+          {
+            builder.Append(':');
+            builder.Append(strLineSplit[index]);
+          }
+
+          chatter.Add(strLineSplit[0], builder.ToString());
         }
-        else if (message.Content.Contains("frank", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/drac-dracula-vampire-horror-shadow-gif-4888147");
-        }
-        else if (message.Content.Contains("federhauser", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/vampire-dracula-mr-burns-fangs-gif-5730463");
-        }
-        else if (message.Content.Contains("nacht", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/nesforatu-dracula-goodnight-gif-10044942");
-        }
-        else if (message.Content.Contains("morgen", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/wake-up-dracula-hangover-leslie-nielsen-gif-14211396");
-        }
-        else if (message.Content.Contains("cool", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/bela-lugosi-dracula-vampire-halloween-horror-gif-15453044");
-        }
-        else if (message.Content.Contains("zahl", StringComparison.OrdinalIgnoreCase) || message.Content.Contains("zählen", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/number-of-the-day-sesame-street-gif-14837388");
-        }
-        else if (message.Content.Contains("ronja", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/cat-bite-gif-7748718");
-        }
-        else if (message.Content.Contains("biss", StringComparison.OrdinalIgnoreCase) || message.Content.Contains("beißen", StringComparison.OrdinalIgnoreCase) || message.Content.Contains("beissen", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/kermit-vampire-gif-3563348");
-        }
-        else if (message.Content.Contains("nobody", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/alan-walker-hacker-gif-7953330");
-        }
-        else if (message.Content.Contains("dracula", StringComparison.OrdinalIgnoreCase))
-        {
-          await message.Channel.SendMessageAsync("https://tenor.com/view/hellsing-vampire-anime-gif-9676269");
-        }
+        
       }
     }
   }

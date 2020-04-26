@@ -16,6 +16,7 @@ namespace DiscordBotVampireDiceRoller
     private DiscordSocketClient discordClient;
 
     private Dictionary<SocketUser, VampireDiceRoll> dicLastRoll4User = new Dictionary<SocketUser, VampireDiceRoll>();
+    private Dictionary<SocketUser, VampireCharacter> dicChar4User = new Dictionary<SocketUser, VampireCharacter>();
 
     Dictionary<string, string> chatter;
 
@@ -109,7 +110,34 @@ namespace DiscordBotVampireDiceRoller
           else
           {
             // No roll found for the user...
-            await message.Channel.SendMessageAsync($"{message.Author.Mention} I found no roll for you to reroll");
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} I found no roll for you to reroll.");
+          }
+        }
+        else if (strMessage.StartsWith("initchar", StringComparison.OrdinalIgnoreCase))
+        {
+          if (this.dicChar4User.ContainsKey(message.Author))
+          {
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} Your character ist already initialized.");
+          }
+          else
+          {
+            // Read the stats from the input
+            string strName = "TestChar";
+            int intHugner = 1;
+            this.dicChar4User.Add(message.Author, new VampireCharacter(strName, intHugner));
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} Hello {strName}. Nice to meet you.");
+          }
+        }
+        else if (strMessage.StartsWith("rouse", StringComparison.OrdinalIgnoreCase))
+        {
+          if (this.dicChar4User.ContainsKey(message.Author) == false)
+          {
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} Your character ist not initialized. I can't rouse your blood.");
+          }
+          else
+          {
+            VampireCharacter vampChar = this.dicChar4User[message.Author];
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} {vampChar.Rouse()}");
           }
         }
         else if (strMessage.StartsWith("help", StringComparison.OrdinalIgnoreCase))

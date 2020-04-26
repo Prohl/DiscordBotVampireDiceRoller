@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DiscordBotVampireDiceRoller</name>
+    </assembly>
+    <members>
+        <member name="T:DiscordBotTest.Program">
+            <summary>
+            MainClass
+            </summary>
+        </member>
+        <member name="M:DiscordBotTest.Program.Main(System.String[])">
+            <summary>
+            MainMethod
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:DiscordBotTest.Program.MainAsync">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:DiscordBotVampireDiceRoller.VampireDiceRoll">
+            <summary>
+            Class for a VampireDiceRoll
+            </summary>
+        </member>
+        <member name="M:DiscordBotVampireDiceRoller.VampireDiceRoll.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Konstruktor - Takes the number of total dice and red dice
+            </summary>
+            <param name="_diceTotal"></param>
+            <param name="_diceRed"></param>
+        </member>
+        <member name="M:DiscordBotVampireDiceRoller.VampireDiceRoll.Reroll(System.String)">
+            <summary>
+            Rerolling
+            </summary>
+            <param name="_rerollOptions"></param>
+            <returns></returns>
+        </member>
+        <member name="P:DiscordBotVampireDiceRoller.VampireDiceRoll.Results">
+            <summary>
+            Gets a formated string with the resulst from the roll
+            </summary>
+        </member>
+    </members>
+</doc>

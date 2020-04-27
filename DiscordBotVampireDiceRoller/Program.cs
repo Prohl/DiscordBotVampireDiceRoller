@@ -3,7 +3,9 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DiscordBotVampireDiceRoller
@@ -57,27 +59,36 @@ namespace DiscordBotVampireDiceRoller
 
     private async Task MessageReceived(SocketMessage message)
     {
-      if (message.Content.StartsWith(this.discordClient.CurrentUser.Mention))
+      if (message.MentionedUsers.FirstOrDefault(user => user.Id == this.discordClient.CurrentUser.Id) != null)
       {
-        // The Bot is mentioned in the message - Parse it
-        string strMessage = message.Content.Replace(this.discordClient.CurrentUser.Mention, "").Trim();
+        // Remove all mentions from the content
+        Regex regi = new Regex(@"<[@|#][!]?[\w]*>");
+        string strMessage = regi.Replace(message.Content, "").Trim();
         // The Bot knows roll, reroll and help
         if (strMessage.StartsWith("roll", StringComparison.OrdinalIgnoreCase))
         {
           // Split the string with Blanks
           string[] strSplit = strMessage.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-          // We're expecting 3 values now
-          if (strSplit.Length == 3)
+          // We're expecting 3 values or 2 and an initialized character
+          VampireCharacter chara = null;
+          int intDiceTotal, intDiceRed;
+          if ((strSplit.Length == 2 && this.dicChar4User.TryGetValue(message.Author, out chara)) || strSplit.Length == 3)
           {
             // We ignore the first one (it should be roll) and cast the rest to integer
-            int intDiceTotal, intDiceRed;
             if (Int32.TryParse(strSplit[1], out intDiceTotal) == false)
             {
               await message.Channel.SendMessageAsync($"{message.Author.Mention} Unable to cast '{strSplit[1]}' to a number");
             }
-            if (Int32.TryParse(strSplit[2], out intDiceRed) == false)
+            if (strSplit.Length == 3)
             {
-              await message.Channel.SendMessageAsync($"{message.Author.Mention} Unable to cast '{strSplit[2]}' to a number");
+              if (Int32.TryParse(strSplit[2], out intDiceRed) == false)
+              {
+                await message.Channel.SendMessageAsync($"{message.Author.Mention} Unable to cast '{strSplit[2]}' to a number");
+              }
+            }
+            else
+            {
+              intDiceRed = chara.Hunger;
             }
 
             VampireDiceRoll diceRoll = new VampireDiceRoll(intDiceTotal, intDiceRed);
@@ -122,10 +133,30 @@ namespace DiscordBotVampireDiceRoller
           else
           {
             // Read the stats from the input
-            string strName = "TestChar";
-            int intHugner = 1;
-            this.dicChar4User.Add(message.Author, new VampireCharacter(strName, intHugner));
-            await message.Channel.SendMessageAsync($"{message.Author.Mention} Hello {strName}. Nice to meet you.");
+            string[] strSplit = strMessage.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            int intHunger;
+            // In the moment we expect the command, the name and the hunger - that makes 3 
+            if (strSplit.Length < 3)
+            {
+              await message.Channel.SendMessageAsync($"{message.Author.Mention} Not enough parameters to create your character. Please use 'initchar name hunger'");
+            }
+            else if (int.TryParse(strSplit[2], out intHunger) == false)
+            {
+              await message.Channel.SendMessageAsync($"{message.Author.Mention} I'm very sorry, but I cannot read a number from '{strSplit[2]}'.");
+            }
+            else
+            {
+              // If the hunger ist out of the allowed range tell it to the user und set hunger to 1
+              if (intHunger < 0 || intHunger > 5)
+              {
+                await message.Channel.SendMessageAsync($"{message.Author.Mention} Hunger must be a number between 0 und 5 but you gave me {intHunger}. Your hunger has been set to 1.");
+                intHunger = 1;
+              }
+              string strName = strSplit[1];
+              int intHugner = intHunger;
+              this.dicChar4User.Add(message.Author, new VampireCharacter(strName, intHugner));
+              await message.Channel.SendMessageAsync($"{message.Author.Mention} Hello {strName}. Nice to meet you.");
+            }
           }
         }
         else if (strMessage.StartsWith("rouse", StringComparison.OrdinalIgnoreCase))

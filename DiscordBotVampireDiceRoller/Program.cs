@@ -169,28 +169,32 @@ namespace DiscordBotVampireDiceRoller
     private void readChatter()
     {
       // Read chatter file
-      string[] chatterLines = System.IO.File.ReadAllLines(@"chatter.txt");
-
-      // Write chatter file into dictionary
-      this.chatter = new Dictionary<string, string>();
-
-      foreach (string line in chatterLines)
+      if (System.IO.File.Exists(@"chatter.txt"))
       {
-        string[] strLineSplit = line.Split(':');
-        if (strLineSplit.Length > 1)
+        string[] chatterLines = System.IO.File.ReadAllLines(@"chatter.txt");
+
+        // Write chatter file into dictionary
+        this.chatter = new Dictionary<string, string>();
+
+        foreach (string line in chatterLines)
         {
-          StringBuilder builder = new StringBuilder();
-          builder.Append(strLineSplit[1]);
-          for (int index = 2; index < strLineSplit.Length; index++)
+          string[] strLineSplit = line.Split(':');
+          if (strLineSplit.Length > 1)
           {
-            builder.Append(':');
-            builder.Append(strLineSplit[index]);
+            StringBuilder builder = new StringBuilder();
+            builder.Append(strLineSplit[1]);
+            for (int index = 2; index < strLineSplit.Length; index++)
+            {
+              builder.Append(':');
+              builder.Append(strLineSplit[index]);
+            }
+
+            chatter.Add(strLineSplit[0], builder.ToString());
           }
 
-          chatter.Add(strLineSplit[0], builder.ToString());
         }
-        
       }
+      
     }
   }
 }

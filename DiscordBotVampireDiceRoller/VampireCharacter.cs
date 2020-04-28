@@ -9,8 +9,6 @@ namespace DiscordBotVampireDiceRoller
   /// </summary>
   public class VampireCharacter
   {
-    private Random randomizer;
-
     /// <summary>
     /// Konstruktor
     /// </summary>
@@ -20,9 +18,6 @@ namespace DiscordBotVampireDiceRoller
       string _name,
       int _hunger)
     {
-      // Initialize the Randomizer
-      this.randomizer = new Random((int)DateTime.Now.Ticks);
-
       this.Name = _name;
       this.Hunger = _hunger;
     }
@@ -71,7 +66,7 @@ namespace DiscordBotVampireDiceRoller
     /// <returns>A nice message</returns>
     public string Rouse()
     {
-      if (this.randomizer.Next(1, 11) > 5)
+      if (VampireDiceRollerController.Rouse())
       {
         // Check successful - Everythings fine
         return "You have your beast under control";
@@ -84,17 +79,17 @@ namespace DiscordBotVampireDiceRoller
         switch (Hunger)
         {
           case 0:
-            return $"{this.NameWith} hunger is at 0, your beast is satisfied.";
+            return $"{this.NameWithGenetivS} hunger is at 0, your beast is satisfied.";
           case 1:
-            return $"{this.NameWith} hunger is at 1, the beast awakens.";
+            return $"{this.NameWithGenetivS} hunger is at 1, the beast awakens.";
           case 2:
-            return $"{this.NameWith} hunger is at 2, you can hear your beast clearly in the back of your head.";
+            return $"{this.NameWithGenetivS} hunger is at 2, you can hear your beast clearly in the back of your head.";
           case 3:
-            return $"{this.NameWith} hunger is at 3, you can feel the beast clawing it's way up.";
+            return $"{this.NameWithGenetivS} hunger is at 3, you can feel the beast clawing it's way up.";
           case 4:
-            return $"{this.NameWith} hunger is at 4, the beast demands payment in blood.";
+            return $"{this.NameWithGenetivS} hunger is at 4, the beast demands payment in blood.";
           case 5:
-            return $"{this.NameWith} hunger is at 5, it's nearly impossible to ignore the beast.";
+            return $"{this.NameWithGenetivS} hunger is at 5, it's nearly impossible to ignore the beast.";
           case 6:
             // Reduce the hunger back to 5
             this.Hunger = 5;
@@ -105,18 +100,11 @@ namespace DiscordBotVampireDiceRoller
       }
     }
 
-    private string NameWith
+    private string NameWithGenetivS
     {
       get
       {
-        if (this.Name.EndsWith("s"))
-        {
-          return this.Name + "'";
-        }
-        else
-        {
-          return this.Name + "s";
-        }
+        return this.Name + "'s";
       }
     }
   }

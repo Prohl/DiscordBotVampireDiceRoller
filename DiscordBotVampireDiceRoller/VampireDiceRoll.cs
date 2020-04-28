@@ -10,7 +10,6 @@ namespace DiscordBotVampireDiceRoller
   public class VampireDiceRoll
   {
     private List<int> lstResultsNormal, lstResultsRed;
-    private Random randomizer;
     private bool bolRerolled = false;
 
     /// <summary>
@@ -20,9 +19,6 @@ namespace DiscordBotVampireDiceRoller
     /// <param name="_diceRed"></param>
     public VampireDiceRoll(int _diceTotal, int _diceRed)
     {
-      // Initialize the Randomizer
-      this.randomizer = new Random((int)DateTime.Now.Ticks);
-
       // Initialize the resultslists
       this.lstResultsNormal = new List<int>(_diceTotal - _diceRed);
       this.lstResultsRed = new List<int>(_diceRed);
@@ -30,12 +26,12 @@ namespace DiscordBotVampireDiceRoller
       // Do the rolling
       for (int intCount = 0; intCount < _diceTotal - _diceRed; intCount++)
       {
-        this.lstResultsNormal.Add(this.randomizer.Next(1, 11));
+        this.lstResultsNormal.Add(VampireDiceRollerController.RollD10());
       }
 
       for (int intCount = 0; intCount < _diceRed; intCount++)
       {
-        this.lstResultsRed.Add(this.randomizer.Next(1, 11));
+        this.lstResultsRed.Add(VampireDiceRollerController.RollD10());
       }
     }
 
@@ -57,9 +53,9 @@ namespace DiscordBotVampireDiceRoller
           for (int intIndex = 0; intIndex < this.lstResultsNormal.Count; intIndex++)
           {
             // Check if not a success
-            if (intRerolls < 3 && this.lstResultsNormal[intIndex] < 6)
+            if (intRerolls < 3 && this.lstResultsNormal[intIndex] < VampireDiceRollerController.MIN_VALUE_SUCCESS)
             {
-              this.lstResultsNormal[intIndex] = this.randomizer.Next(1, 11);
+              this.lstResultsNormal[intIndex] = VampireDiceRollerController.RollD10();
               intRerolls++;
             }
           }
@@ -82,11 +78,11 @@ namespace DiscordBotVampireDiceRoller
               }
               else if (char.ToUpperInvariant(optionAktuell) == char.ToUpperInvariant('s'))
               {
-                funcCompare = (intValue => intValue > 5);
+                funcCompare = (intValue => intValue >= VampireDiceRollerController.MIN_VALUE_SUCCESS);
               }
               else if (char.ToUpperInvariant(optionAktuell) == char.ToUpperInvariant('f'))
               {
-                funcCompare = (intValue => intValue < 6);
+                funcCompare = (intValue => intValue < VampireDiceRollerController.MIN_VALUE_SUCCESS);
               }
               else
               {
@@ -95,7 +91,7 @@ namespace DiscordBotVampireDiceRoller
               // Check if the option is met
               if (intRerolls < 3 && lstIndexRerolledDice.Contains(intIndex) == false && funcCompare(this.lstResultsNormal[intIndex]))
               {
-                this.lstResultsNormal[intIndex] = this.randomizer.Next(1, 11);
+                this.lstResultsNormal[intIndex] = VampireDiceRollerController.RollD10();
                 lstIndexRerolledDice.Add(intIndex);
                 intRerolls++;
                 break;
@@ -151,7 +147,7 @@ namespace DiscordBotVampireDiceRoller
           {
             intRedZeros++;
           }
-          if (result > 5)
+          if (result >= VampireDiceRollerController.MIN_VALUE_SUCCESS)
           {
             intSuccesses++;
           }
@@ -188,7 +184,7 @@ namespace DiscordBotVampireDiceRoller
         strBuilderReturn.Append(" | Detailed results: ");
         foreach (int result in this.lstResultsNormal)
         {
-          if (result < 6)
+          if (result < VampireDiceRollerController.MIN_VALUE_SUCCESS)
           {
             strBuilderReturn.Append("F");
           }
@@ -208,7 +204,7 @@ namespace DiscordBotVampireDiceRoller
           {
             strBuilderReturn.Append("B");
           }
-          else if (result < 6)
+          else if (result < VampireDiceRollerController.MIN_VALUE_SUCCESS)
           {
             strBuilderReturn.Append("F");
           }

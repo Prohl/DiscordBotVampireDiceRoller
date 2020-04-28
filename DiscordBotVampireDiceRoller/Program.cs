@@ -17,8 +17,8 @@ namespace DiscordBotVampireDiceRoller
   {
     private DiscordSocketClient discordClient;
 
-    private Dictionary<SocketUser, VampireDiceRoll> dicLastRoll4User = new Dictionary<SocketUser, VampireDiceRoll>();
-    private Dictionary<SocketUser, VampireCharacter> dicChar4User = new Dictionary<SocketUser, VampireCharacter>();
+    private Dictionary<string, VampireDiceRoll> dicLastRoll4User = new Dictionary<string, VampireDiceRoll>();
+    private Dictionary<string, VampireCharacter> dicChar4User = new Dictionary<string, VampireCharacter>();
 
     Dictionary<string, string> chatter;
 
@@ -35,7 +35,7 @@ namespace DiscordBotVampireDiceRoller
     /// <returns></returns>
     public async Task MainAsync()
     {
-      this.readChatter();
+      this.ReadChatter();
       
       this.discordClient = new DiscordSocketClient();
       this.discordClient.Log += Log;
@@ -59,7 +59,7 @@ namespace DiscordBotVampireDiceRoller
 
     private async Task MessageReceived(SocketMessage message)
     {
-      if (message.MentionedUsers.FirstOrDefault(user => user.Id == this.discordClient.CurrentUser.Id) != null)
+      if (message.MentionedUsers.FirstOrDefault(user => GetUniqueDiscriminator(user) == GetUniqueDiscriminator(this.discordClient.CurrentUser)) != null)
       {
         // Remove all mentions from the content
         Regex regi = new Regex(@"<[@|#][!]?[\w]*>");
@@ -67,12 +67,13 @@ namespace DiscordBotVampireDiceRoller
         // The Bot knows roll, reroll and help
         if (strMessage.StartsWith("roll", StringComparison.OrdinalIgnoreCase))
         {
+          #region Roll
           // Split the string with Blanks
           string[] strSplit = strMessage.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
           // We're expecting 3 values or 2 and an initialized character
           VampireCharacter chara = null;
           int intDiceTotal, intDiceRed;
-          if ((strSplit.Length == 2 && this.dicChar4User.TryGetValue(message.Author, out chara)) || strSplit.Length == 3)
+          if ((strSplit.Length == 2 && this.dicChar4User.TryGetValue(GetUniqueDiscriminator(message.Author), out chara)) || strSplit.Length == 3)
           {
             // We ignore the first one (it should be roll) and cast the rest to integer
             if (Int32.TryParse(strSplit[1], out intDiceTotal) == false)
@@ -92,7 +93,7 @@ namespace DiscordBotVampireDiceRoller
             }
 
             VampireDiceRoll diceRoll = new VampireDiceRoll(intDiceTotal, intDiceRed);
-            this.dicLastRoll4User[message.Author] = diceRoll;
+            this.dicLastRoll4User[GetUniqueDiscriminator(message.Author)] = diceRoll;
 
             await message.Channel.SendMessageAsync($"{message.Author.Mention} {diceRoll.Results}");
           }
@@ -101,11 +102,13 @@ namespace DiscordBotVampireDiceRoller
             // Haven't found what we we're looking for
             await message.Channel.SendMessageAsync($"{message.Author.Mention} Somethings not right with your roll command");
           }
+          #endregion
         }
         else if (strMessage.StartsWith("reroll", StringComparison.OrdinalIgnoreCase))
         {
+          #region Reroll
           VampireDiceRoll diceRoll;
-          if (this.dicLastRoll4User.TryGetValue(message.Author, out diceRoll))
+          if (this.dicLastRoll4User.TryGetValue(GetUniqueDiscriminator(message.Author), out diceRoll))
           {
             // Check if the user wants to reroll something specific
             string[] strSplit = strMessage.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -123,12 +126,14 @@ namespace DiscordBotVampireDiceRoller
             // No roll found for the user...
             await message.Channel.SendMessageAsync($"{message.Author.Mention} I found no roll for you to reroll.");
           }
+          #endregion
         }
         else if (strMessage.StartsWith("initchar", StringComparison.OrdinalIgnoreCase))
         {
-          if (this.dicChar4User.ContainsKey(message.Author))
+          #region InitChar
+          if (this.dicChar4User.ContainsKey(GetUniqueDiscriminator(message.Author)))
           {
-            await message.Channel.SendMessageAsync($"{message.Author.Mention} Your character ist already initialized.");
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} Your character is already initialized.");
           }
           else
           {
@@ -154,22 +159,47 @@ namespace DiscordBotVampireDiceRoller
               }
               string strName = strSplit[1];
               int intHugner = intHunger;
-              this.dicChar4User.Add(message.Author, new VampireCharacter(strName, intHugner));
+              this.dicChar4User.Add(GetUniqueDiscriminator(message.Author), new VampireCharacter(strName, intHugner));
               await message.Channel.SendMessageAsync($"{message.Author.Mention} Hello {strName}. Nice to meet you.");
             }
           }
+          #endregion
         }
-        else if (strMessage.StartsWith("rouse", StringComparison.OrdinalIgnoreCase))
+        else if (strMessage.StartsWith("kill", StringComparison.OrdinalIgnoreCase))
         {
-          if (this.dicChar4User.ContainsKey(message.Author) == false)
+          #region kill
+          VampireCharacter character;
+          if (this.dicChar4User.TryGetValue(GetUniqueDiscriminator(message.Author), out character))
           {
-            await message.Channel.SendMessageAsync($"{message.Author.Mention} Your character ist not initialized. I can't rouse your blood.");
+            this.dicChar4User.Remove(GetUniqueDiscriminator(message.Author));
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} {character.Name} has met his final death.");
           }
           else
           {
-            VampireCharacter vampChar = this.dicChar4User[message.Author];
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} I can't kill something I cannot see.");
+          }
+          #endregion
+        }
+        else if (strMessage.StartsWith("rouse", StringComparison.OrdinalIgnoreCase))
+        {
+          #region Rouse
+          if (this.dicChar4User.ContainsKey(GetUniqueDiscriminator(message.Author)) == false)
+          {
+            if (VampireDiceRollerController.Rouse())
+            {
+              await message.Channel.SendMessageAsync($"{message.Author.Mention} You are fine.");
+            }
+            else
+            {
+              await message.Channel.SendMessageAsync($"{message.Author.Mention} Your hunger increases.");
+            }
+          }
+          else
+          {
+            VampireCharacter vampChar = this.dicChar4User[GetUniqueDiscriminator(message.Author)];
             await message.Channel.SendMessageAsync($"{message.Author.Mention} {vampChar.Rouse()}");
           }
+          #endregion
         }
         else if (strMessage.StartsWith("help", StringComparison.OrdinalIgnoreCase))
         {
@@ -197,7 +227,7 @@ namespace DiscordBotVampireDiceRoller
       }
     }
 
-    private void readChatter()
+    private void ReadChatter()
     {
       // Read chatter file
       if (System.IO.File.Exists(@"chatter.txt"))
@@ -226,6 +256,16 @@ namespace DiscordBotVampireDiceRoller
         }
       }
       
+    }
+
+    /// <summary>
+    /// Return username#discriminator of the user
+    /// </summary>
+    /// <param name="_user"></param>
+    /// <returns></returns>
+    private string GetUniqueDiscriminator(SocketUser _user)
+    {
+      return $"{_user.Username}#{_user.Discriminator}";
     }
   }
 }

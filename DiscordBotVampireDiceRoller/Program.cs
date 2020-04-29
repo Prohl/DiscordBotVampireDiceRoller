@@ -42,7 +42,7 @@ namespace DiscordBotVampireDiceRoller
       this.discordClient.MessageReceived += MessageReceived;
 
       // Token
-      string strToken = DiscordBotVampireDiceRoller.Properties.Resources.TOKEN;
+      string strToken = Properties.Resources.TOKEN;
 
       await this.discordClient.LoginAsync(TokenType.Bot, strToken);
       await this.discordClient.StartAsync();
@@ -201,15 +201,60 @@ namespace DiscordBotVampireDiceRoller
           }
           #endregion
         }
+        else if (strMessage.StartsWith("hunger", StringComparison.OrdinalIgnoreCase))
+        {
+          #region hunger
+          // Hunger makes only sense with an initialized character
+          VampireCharacter character;
+          if (this.dicChar4User.TryGetValue(GetUniqueDiscriminator(message.Author), out character))
+          {
+            // Hunger needs to be followed by something
+            string[] strSplit = strMessage.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (strSplit.Length == 1)
+            {
+              await message.Channel.SendMessageAsync($"{message.Author.Mention} {character.GetMessageForHunger()}");
+            }
+            else
+            {
+              // We only care about the second string in the array - check if it starts with +/-
+              bool bolModusModify = false;
+              if (strSplit[1].StartsWith('+') || strSplit[1].StartsWith('-'))
+              {
+                bolModusModify = true;
+              }
+
+              // Try to parse the string to a number
+              int intHunger;
+              if (Int32.TryParse(strSplit[1], out intHunger))
+              {
+                await message.Channel.SendMessageAsync($"{message.Author.Mention} {character.SetHunger(intHunger, bolModusModify)}");
+              }
+              else
+              {
+                await message.Channel.SendMessageAsync($"{message.Author.Mention} I cannot get a number from '{strSplit[1]}'.");
+              }
+            }
+          }
+          else
+          {
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} I have no character for you. Only you can get hungrier.");
+          }
+          #endregion
+        }
         else if (strMessage.StartsWith("help", StringComparison.OrdinalIgnoreCase))
         {
-          await message.Channel.SendMessageAsync($"{message.Author.Mention} You can tell me to roll the dice by telling me \"roll {{number of total dice}} {{number of red dice}}\" (\"roll 7 2\")" +
-            $"{Environment.NewLine}or \"reroll\" to reroll up to three normal dice from your last roll. Without specification a reroll will reroll failures. " +
-            $"You can specify what you want to reroll by adding 'c' for a critical, 's' for an success or 'f' for a failure (reroll cff).");
+          await message.Channel.SendMessageAsync($"{message.Author.Mention} I understand the following commands:{Environment.NewLine}" +
+            $"- roll: let me roll some dice for you. You can either tell me to roll a number of dice and hungerdice with (hunger X Y) or if you have an initialized character simply (roll X) and I will get the hungerdice from your characters hunger{Environment.NewLine}" +
+            $"- reroll: I will reroll up to three normal dice from your last roll. Without specification a reroll will reroll failures. " +
+            $"You can specify what you want to reroll by adding 'c' for a critical, 's' for an success or 'f' for a failure (reroll cff).{Environment.NewLine}" +
+            $"- initchar: followed by a name and your current hunger (initchar foo 2). Initializes your character.{Environment.NewLine}" +
+            $"- kill: removes your current character and you can initialize a new one.{Environment.NewLine}" +
+            $"- rouse: makes a rousecheck. When your character is initialized I tell you your new hunger, if it increases.{Environment.NewLine}" +
+            $"- hunger: used to modify, set or get your hunger. To set it simply type hunger X and I will set your hunger to X. When you write +/- before X I will modify your hunger by X. Just hunger will reveal your current hunger.");
         }
         else
         {
-          await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't understand. Type \"help\" when you need some help from me");
+          await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't understand. Type \"help\" when you need some help from me.");
         }
       }
 

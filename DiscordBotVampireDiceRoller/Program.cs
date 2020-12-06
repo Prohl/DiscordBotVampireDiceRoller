@@ -244,7 +244,7 @@ namespace DiscordBotVampireDiceRoller
         else if (strMessage.StartsWith("help", StringComparison.OrdinalIgnoreCase))
         {
           await message.Channel.SendMessageAsync($"{message.Author.Mention} I understand the following commands:{Environment.NewLine}" +
-            $"- roll: let me roll some dice for you. You can either tell me to roll a number of dice and hungerdice with (hunger X Y) or if you have an initialized character simply (roll X) and I will get the hungerdice from your characters hunger{Environment.NewLine}" +
+            $"- roll: let me roll some dice for you. You can either tell me to roll a number of dice and hungerdice with (roll X Y) or if you have an initialized character simply (roll X) and I will get the hungerdice from your characters hunger{Environment.NewLine}" +
             $"- reroll: I will reroll up to three normal dice from your last roll. Without specification a reroll will reroll failures. " +
             $"You can specify what you want to reroll by adding 'c' for a critical, 's' for an success or 'f' for a failure (reroll cff).{Environment.NewLine}" +
             $"- initchar: followed by a name and your current hunger (initchar foo 2). Initializes your character.{Environment.NewLine}" +

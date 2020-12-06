@@ -14,7 +14,7 @@ The VampireDiceRoller (Vadir) is a simple Discord Bot to help manage a Vampire V
 
 * The bot only responds, when he is adressed directly (@botname).
 * When you type @botname help he will list all commands he understand with an explanation:
-    * roll: let me roll some dice for you. You can either tell me to roll a number of dice and hungerdice with (hunger X Y) or if you have an initialized character simply (roll X) and I will get the hungerdice from your characters hunger
+    * roll: let me roll some dice for you. You can either tell me to roll a number of dice and hungerdice with (roll X Y) or if you have an initialized character simply (roll X) and I will get the hungerdice from your characters hunger.
     * reroll: I will reroll up to three normal dice from your last roll. Without specification a reroll will reroll failures. You can specify what you want to reroll by adding 'c' for a critical, 's' for an success or 'f' for a failure (reroll cff).
     * initchar: followed by a name and your current hunger (initchar foo 2). Initializes your character.
     * kill: removes your current character and you can initialize a new one.

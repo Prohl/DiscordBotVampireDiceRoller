@@ -183,9 +183,11 @@ namespace DiscordBotVampireDiceRoller
         else if (strMessage.StartsWith("rouse", StringComparison.OrdinalIgnoreCase))
         {
           #region Rouse
+          // Check if the check can bererolled
+          bool bolReroll = strMessage.StartsWith("rouse+", StringComparison.OrdinalIgnoreCase);
           if (this.dicChar4User.ContainsKey(GetUniqueDiscriminator(message.Author)) == false)
           {
-            if (VampireDiceRollerController.Rouse())
+            if (VampireDiceRollerController.Rouse(bolReroll))
             {
               await message.Channel.SendMessageAsync($"{message.Author.Mention} You are fine.");
             }
@@ -197,7 +199,7 @@ namespace DiscordBotVampireDiceRoller
           else
           {
             VampireCharacter vampChar = this.dicChar4User[GetUniqueDiscriminator(message.Author)];
-            await message.Channel.SendMessageAsync($"{message.Author.Mention} {vampChar.Rouse()}");
+            await message.Channel.SendMessageAsync($"{message.Author.Mention} {vampChar.Rouse(bolReroll)}");
           }
           #endregion
         }
@@ -240,6 +242,11 @@ namespace DiscordBotVampireDiceRoller
             await message.Channel.SendMessageAsync($"{message.Author.Mention} I have no character for you. Only you can get hungrier.");
           }
           #endregion
+        }
+        else if (strMessage.StartsWith("about", StringComparison.OrdinalIgnoreCase))
+        {
+          await message.Channel.SendMessageAsync($"Vampire Dice Roller Version '{this.GetType().Assembly.GetName().Version}' under GPL-3.0 License.{Environment.NewLine}" +
+            $"Source code can be found under: https://github.com/Prohl/DiscordBotVampireDiceRoller{Environment.NewLine}");
         }
         else if (strMessage.StartsWith("help", StringComparison.OrdinalIgnoreCase))
         {

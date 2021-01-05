@@ -31,10 +31,16 @@ namespace DiscordBotVampireDiceRoller
     /// <summary>
     /// Makes a "rouse" check and returns if it was successfull
     /// </summary>
+    /// <param name="_reroll">Can the check rerolled if the first one ist not successful?</param>
     /// <returns></returns>
-    public static bool Rouse()
+    public static bool Rouse(bool _reroll)
     {
-      return RollD10() >= MIN_VALUE_SUCCESS;
+      bool bolReturn = RollD10() >= MIN_VALUE_SUCCESS;
+      if (_reroll && bolReturn == false)
+      {
+        bolReturn = RollD10() >= MIN_VALUE_SUCCESS;
+      }
+      return bolReturn;
     }
   }
 }

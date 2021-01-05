@@ -63,10 +63,11 @@ namespace DiscordBotVampireDiceRoller
     /// Increases the Hunger if not successfull
     /// Returns a Text that can be send to the user
     /// </summary>
+    /// <param name="_reroll">Can the check rerolled if the first one ist not successful?</param>
     /// <returns>A nice message</returns>
-    public string Rouse()
+    public string Rouse(bool _reroll)
     {
-      if (VampireDiceRollerController.Rouse())
+      if (VampireDiceRollerController.Rouse(_reroll))
       {
         // Check successful - Everythings fine
         return "You have your beast under control";

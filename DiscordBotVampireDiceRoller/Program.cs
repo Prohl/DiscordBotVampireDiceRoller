@@ -20,7 +20,7 @@ namespace DiscordBotVampireDiceRoller
     private Dictionary<string, VampireDiceRoll> dicLastRoll4User = new Dictionary<string, VampireDiceRoll>();
     private Dictionary<string, VampireCharacter> dicChar4User = new Dictionary<string, VampireCharacter>();
 
-    Dictionary<string, string> chatter;
+    private Dictionary<string, string> dicChatter;
 
     /// <summary>
     /// MainMethod
@@ -268,7 +268,7 @@ namespace DiscordBotVampireDiceRoller
       if (message.Author.IsBot == false)
       {
         // Response to see, that the Bot is still responding
-        foreach (KeyValuePair<string,string> pair in chatter)
+        foreach (KeyValuePair<string,string> pair in dicChatter)
         {
           if (message.Content.Contains(pair.Key, StringComparison.OrdinalIgnoreCase))
           {
@@ -287,7 +287,7 @@ namespace DiscordBotVampireDiceRoller
         string[] chatterLines = System.IO.File.ReadAllLines(@"chatter.txt");
 
         // Write chatter file into dictionary
-        this.chatter = new Dictionary<string, string>();
+        this.dicChatter = new Dictionary<string, string>();
 
         foreach (string line in chatterLines)
         {
@@ -302,7 +302,7 @@ namespace DiscordBotVampireDiceRoller
               builder.Append(strLineSplit[index]);
             }
 
-            chatter.Add(strLineSplit[0], builder.ToString());
+            dicChatter.Add(strLineSplit[0], builder.ToString());
           }
 
         }

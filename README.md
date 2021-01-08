@@ -21,5 +21,5 @@ The VampireDiceRoller (Vadir) is a simple Discord Bot to help manage a Vampire V
     * `rouse`: makes a rousecheck. When your character is initialized I tell you your new hunger, if it increases.
     * `rouse+`: makes a rousecheck with a reroll.
     * `hunger`: used to modify, set or get your hunger. To set it simply type hunger X and I will set your hunger to X. When you write +/- before X I will modify your hunger by X. Just hunger will reveal your current hunger.
-    * `about`: shows the Version and some more info about vadir
+    * `about`: shows the Version and some more info about Vadir
 * As a little gimmick there's a file called chatter.txt in the project. The file consists of key-value pairs divided by ":". When you copy that file into the executing folder of the bot, he will answer with a value if someone writes the key in a message (even if the bot is not adressed).

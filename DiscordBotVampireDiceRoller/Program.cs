@@ -265,10 +265,11 @@ namespace DiscordBotVampireDiceRoller
         }
       }
 
-      if (message.Author.IsBot == false)
+      // Never respond to a bot and only if we have a chatter file
+      if (message.Author.IsBot == false && this.dicChatter != null)
       {
         // Response to see, that the Bot is still responding
-        foreach (KeyValuePair<string,string> pair in dicChatter)
+        foreach (KeyValuePair<string,string> pair in this.dicChatter)
         {
           if (message.Content.Contains(pair.Key, StringComparison.OrdinalIgnoreCase))
           {

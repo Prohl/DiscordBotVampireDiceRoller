@@ -7,7 +7,7 @@ The VampireDiceRoller (Vadir) is a simple Discord Bot to help manage a Vampire V
 1. Install Visual Studio. 2017 and 2019 works, haven't tested it with VS Code.
 2. Install the Discord.net plugin (https://github.com/discord-net/Discord.Net). Best with NuGet.
 3. Downoad the sources and open the project in Visual Studio. When you compile it, there should be one error.
-4. Follow the instructions under https://discord.foxbot.me/stable/guides/introduction/intro.html to create a Discord Bot. As soon as you got the token open the properties of the project, navigate to "Resources" and create an entry with the key "TOKEN" and the value is your token.
+4. Follow the instructions under https://docs.stillu.cc/guides/getting_started/first-bot.html to create a Discord Bot. As soon as you got the token open the properties of the project, navigate to "Resources" and create an entry with the key "TOKEN" and the value is your token.
 5. Now the solution should compile and directly connect to discord as your bot.
 
 ## How to use it
